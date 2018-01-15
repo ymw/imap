@@ -28,7 +28,6 @@ class YmwImap extends ConfigurableExtension
 		$config = $this->processConfiguration($configuration, $configs);
 
 		$container->setParameter('imap', $config['imap']);
-		$container->setParameter('access', $config['access']);
 		$loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 		$loader->load('services.yml');
 	}
