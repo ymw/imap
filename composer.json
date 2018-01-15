@@ -1,0 +1,19 @@
+{
+    "name": "ymw/imap",
+    "description": "Bundle provide solutions to operate with the IMAP protocol, as well as the NNTP, POP3 and local mailbox access methods",
+    "type": "library",
+    "require": {
+        "php": ">=5.2.0",
+        "ext-imap": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mohamed Ben Henda",
+            "email": "benhenda.med.tn@gmail.com"
+        }
+    ]
+}
