@@ -10,31 +10,33 @@
 
 namespace YMW\ImapBundle\MailBox;
 
+use Symfony\Component\DependencyInjection\ContainerInterface as Container;
+
 class MailBox
 {
 	private $server;
 	private $stream;
+	private $container;
 
 	/**
 	 * MailBox constructor.
 	 *
-	 * @param array $configs
+	 * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
 	 *
 	 * @throws \Exception
+	 * @internal param array $configs
+	 *
 	 */
-	public function __construct(array $configs)
+	public function __construct(Container $container)
 	{
-		$folder = $configs['folder']?:'';
+		if (!function_exists('imap_open')) {
+			throw new \RuntimeException('IMAP extension must be enabled');
+		}
+		$this->container = $this->container = $container;
+		$configs = $imap = $this->container()->getParameter('imap');
+		$this->server = $this->getServerString($configs);
 		$options = $configs['options']?:NIL;
 		$nTries = $configs['n_tries']?:NIL;
-		$optionsMailBox = '';
-		if (array_key_exists('options_mail_box', $configs)) {
-			foreach ($configs['options'] as $option) {
-				$optionsMailBox .= '/'.$option;
-			}
-		}
-		$this->server = '{'.$configs['server'].':'.$configs['port'].$optionsMailBox.'}'.$folder;
-
 		$inbox = $this->imapOpen($this->server, $configs['username'], $configs['password'], $options, $nTries, $configs['params']);
 		if (FALSE === $inbox) {
 			throw new \Exception('Connect failed: ' . imap_last_error());
@@ -123,6 +125,44 @@ class MailBox
 	public function count()
 	{
 		return $this->check()->Nmsgs;
+	}
+
+	/**
+	 * Glues hostname, port and flags and returns result.
+	 *
+	 * @param array $configs
+	 *
+	 * @return string
+	 */
+	private function getServerString(array $configs)
+	{
+		$folder = $configs['folder']?:'';
+		$optionsMailBox = $this->getMailBoxFlags($configs);
+
+		return sprintf(
+			'{%s:%s%s}%s',
+			$configs['server'],
+			$configs['port'],
+			$optionsMailBox,
+			$folder
+		);
+	}
+
+	/**
+	 * @param array $configs
+	 *
+	 * @return string
+	 */
+	private function getMailBoxFlags( array $configs )
+	{
+		$optionsMailBox = '';
+		if (array_key_exists('options_mail_box', $configs)) {
+			foreach ($configs['options'] as $option) {
+				$optionsMailBox .= '/' . $option;
+			}
+		}
+
+		return $optionsMailBox;
 	}
 
 
