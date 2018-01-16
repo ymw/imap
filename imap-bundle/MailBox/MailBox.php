@@ -32,8 +32,8 @@ class MailBox
 		if (!function_exists('imap_open')) {
 			throw new \RuntimeException('IMAP extension must be enabled');
 		}
-		$this->container = $this->container = $container;
-		$configs = $imap = $this->container()->getParameter('imap');
+		$this->container = $container;
+		$configs = $this->container->getParameter('imap');
 		$this->server = $this->getServerString($configs);
 		$options = $configs['options']?:NIL;
 		$nTries = $configs['n_tries']?:NIL;
